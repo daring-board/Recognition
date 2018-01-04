@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 import subprocess
 from time import sleep
@@ -6,19 +7,19 @@ from subprocess import Popen
 import chat as ch
 import weather as wt
 import audio_output as ao
+from core import Core
 
 class LangEngine:
-    queue = []
 
-    def createTmp(self, line):
-        tmp = 'tmp'
+    def createTmp(self, line, op='def'):
+        tmp = 'tmp_%s'%op
         txt_path = 'speaker/txt/%s.txt'%tmp
         line = line.split(':')[1]
-        with open(txt_path, 'w', encoding='sjis') as f:
+        with open(txt_path, 'w') as f:
             f.write(line+'\n')
         return tmp
 
-    def listen(self):
+    def input_audio(self):
         #julius -C main.jconf -dnnconf main.dnnconf
         cmd = 'julius_int\\julius.exe -C julius_int/main.jconf -dnnconf julius_int/main.dnnconf'
         proc = Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -27,7 +28,7 @@ class LangEngine:
             line = proc.stdout.readline()
             line = line.decode('sjis')
             if count == 0:
-                self.speak('start', 'happy')
+                self.speak('start_intractive', 'happy')
                 count += 1
             if 'pass1_best:' in line:
                 line = line.replace(' ', '')
@@ -39,12 +40,32 @@ class LangEngine:
                     txt = ':'+wt.weather()
                     self.speak(self.createTmp(txt), 'happy')
                 else:
-                    txt = ':'+ch.getChat(line)
+                    txt = ':'+ch.getChatWithA3rt(line)
                     self.speak(self.createTmp(txt), 'happy')
             if not line and proc.poll() is not None:
                 break
         self.speak(self.createTmp(':システムを終了します。'))
         proc.kill()
+        self.speak('close')
+
+    def input_text(self):
+        ai = Core('AI')
+        self.speak('start_text', 'happy')
+        while True:
+            txt = input('>> ')
+            if '終了' == txt:
+                self.speak(self.createTmp(':システムを終了します。'))
+                self.speak('close')
+                break
+            if '天気予報' in txt:
+                txt = ':'+wt.weather()
+                self.speak(self.createTmp(txt), 'happy')
+            else:
+                txt = ':'+ai.dialogue(txt)
+                print(txt)
+                self.speak(self.createTmp(txt), 'happy')
+            # sleep(2)
+            # self.speak('next', 'happy')
 
     '''
     emotion: Can specifiy following list
@@ -63,5 +84,7 @@ class LangEngine:
 
 if __name__=='__main__':
     lang = LangEngine()
-    lang.listen()
-    lang.speak('close')
+    if len(sys.argv) < 2:
+        lang.input_audio()
+    else:
+        lang.input_text()
