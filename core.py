@@ -1,6 +1,6 @@
 from responder import Responder, WhatResponder, RandomResponder
 from responder import GreetingResponder, PatternResponder
-from responder import TemplateResponder
+from responder import TemplateResponder, MarkovResponder
 from dictionary import Dictionary
 from NLP import NLP
 
@@ -27,6 +27,9 @@ class Core:
         self._dict[r_type] = Dictionary(r_type, self._nlp)
         r_type = 'what'
         self._dict[r_type] = Dictionary(r_type, self._nlp)
+        r_type = 'markov'
+        self._dict[r_type] = Dictionary(r_type, self._nlp)
+
 
     def configure(self, r_type):
         self.r_type = r_type
@@ -37,6 +40,8 @@ class Core:
             self._responder = PatternResponder(r_type, self._nlp, dic.data)
         elif r_type == 'greeting':
             self._responder = GreetingResponder(r_type, self._nlp, dic.data)
+        elif r_type == 'markov':
+            self._responder = MarkovResponder(r_type, self._nlp, dic.obj)
         else:
             self._responder = WhatResponder(r_type, self._nlp)
 
@@ -50,10 +55,8 @@ class Core:
 
     def save(self):
         r_type = 'template'
-        print(self._dict[r_type].data)
         self._dict[r_type].save()
         r_type = 'pattern'
-        print(self._dict[r_type].data)
         self._dict[r_type].save()
 
     @property

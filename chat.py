@@ -13,14 +13,12 @@ def getChat(filename):
 	proc.wait()
 	lines = [line.strip() for line in open(dst, 'r', encoding='sjis')]
 	line = '\n'.join(lines)
-	print(line)
 	return line
 
 def getChatWithA3rt(txt):
 	key ='GRSpAwn90yClWzDvlfG4sWMxzwWcR16r'
 	client = pya3rt.TalkClient(key)
 	reply_message = client.talk(txt)
-	print(reply_message['results'][0]['reply'])
 	return reply_message['results'][0]['reply']
 
 def getStockInfo():

@@ -91,6 +91,19 @@ class TemplateResponder(Responder):
                 return template
         return chat.getChatWithA3rt(text)
 
+class MarkovResponder(Responder):
+    def __init__(self, name, nlp, obj):
+        """コンストラクタ"""
+        super().__init__(name, nlp)
+        self._obj = obj
+
+    def response(self, text, parts):
+        """形態素のリストpartsからキーワードを選択し、それに基づく文章を生成して返す。
+        キーワードに該当するものがなかった場合はランダム辞書から返す。"""
+        keyword = next((w for w, p in parts if self._nlp.is_keyword(p)), '')
+        response = self._obj.generate(keyword)
+        return response if response else 'あぁ、えぇ～っと'
+
 class PatternResponder(Responder):
     """AIの応答を制御する思考エンジンクラス。
     登録されたパターンに反応し、関連する応答を返す。

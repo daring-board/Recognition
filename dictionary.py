@@ -1,4 +1,5 @@
 import os
+from markov import Markov
 
 class Dictionary:
     """
@@ -18,12 +19,17 @@ class Dictionary:
                     self._dict[int(count)] = template
                 else:
                     self._dict[int(count)] += '|'+template
+        elif target == 'markov':
+            # 雑談用
+            self._mkv = Markov()
+            self._mkv.load('brain/dicts/markov.dat')
         else:
             self._dict = {l.split('\t')[0]: l.split('\t')[1] for l in lines}
         self._nlp = nlp
 
     def touch_dicts(self, target):
         """辞書ファイルがなければ空のファイルを作成し、あれば何もしない。"""
+        if target == 'markov': return
         f_path = 'brain/dicts/%s.ini'%target
         if not os.path.exists(f_path):
             open(f_path, 'w').close()
@@ -34,6 +40,10 @@ class Dictionary:
         return '{}\t{}'.format(key, '|'.join(phrase))
 
     @property
+    def obj(self):
+        return self._mkv
+
+    @property
     def data(self):
         return self._dict
 
@@ -42,6 +52,12 @@ class Dictionary:
             self.study_pattern(text, parts)
         elif self.target == 'template':
             self.study_template(text, parts)
+        elif self.target == 'markov':
+            self.study_markov(text, parts)
+
+    def study_markov(self, text, parts):
+        """形態素のリストpartsを受け取り、マルコフ辞書に学習させる。"""
+        self._mkv.add_sentence(parts)
 
     def study_template(self, text, parts):
         """形態素のリストpartsを受け取り、
@@ -75,10 +91,15 @@ class Dictionary:
         """メモリ上の辞書をファイルに保存する。"""
         if self.target == 'template':
             self.save_template()
-            return
-        with open(self.f_path, mode='w', encoding='utf-8') as f:
-            for key in self._dict:
-                f.write('%s\t%s\n'%(key, self._dict[key]))
+        elif self.target == 'markov':
+            self.save_markov()
+        else:
+            with open(self.f_path, mode='w', encoding='utf-8') as f:
+                for key in self._dict:
+                    f.write('%s\t%s\n'%(key, self._dict[key]))
+
+    def save_markov(self):
+        self._markov.save('markov.dat')
 
     def save_template(self):
         with open(self.f_path, mode='w', encoding='utf-8') as f:

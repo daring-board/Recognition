@@ -21,7 +21,7 @@ class LangEngine:
         return tmp
 
     def throw_responder(self, ai, count, txt):
-        r_attrs = ['greeting', 'template', 'pattern', 'what']
+        r_attrs = ['greeting', 'template', 'pattern', 'markov', 'what']
         attr = r_attrs[0] if count == 0 else random.choice(r_attrs[1:])
         ai.configure(attr)
         txt = ':'+ai.dialogue(txt)
@@ -35,13 +35,11 @@ class LangEngine:
         cmd = 'julius_int\\julius.exe -C julius_int/main.jconf -dnnconf julius_int/main.dnnconf'
         proc = Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         ai = Core('AI')
+        self.speak('start_intractive', 'happy')
         count = 0
         while True:
             line = proc.stdout.readline()
             line = line.decode('sjis')
-            if count == 0:
-                self.speak('start_intractive', 'happy')
-                count += 1
             if 'pass1_best:' in line:
                 line = line.replace(' ', '')
                 if 'プロセスを終了' in line: break
@@ -53,6 +51,7 @@ class LangEngine:
                     self.speak(self.createTmp(txt), 'happy')
                 else:
                     self.throw_responder(ai, count, line)
+                    count += 1
             if not line and proc.poll() is not None:
                 break
         self.speak(self.createTmp(':システムを終了します。'))
@@ -72,7 +71,7 @@ class LangEngine:
                 break
             if '天気予報' in txt:
                 txt = ':'+wt.weather()
-                self.speak(self.createTmp(txt), 'happy')
+                self.speak(self.createTmp(txt))
             else:
                 count = self.throw_responder(ai, count, txt)
         ai.save()
