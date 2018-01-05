@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+import random
 import subprocess
 from time import sleep
 from subprocess import Popen
@@ -19,10 +20,21 @@ class LangEngine:
             f.write(line+'\n')
         return tmp
 
+    def throw_responder(self, ai, count, txt):
+        r_attrs = ['greeting', 'template', 'pattern', 'what']
+        attr = r_attrs[0] if count == 0 else random.choice(r_attrs[1:])
+        ai.configure(attr)
+        txt = ':'+ai.dialogue(txt)
+        print(txt)
+        self.speak(self.createTmp(txt), 'happy')
+        count += 1
+        return count
+
     def input_audio(self):
         #julius -C main.jconf -dnnconf main.dnnconf
         cmd = 'julius_int\\julius.exe -C julius_int/main.jconf -dnnconf julius_int/main.dnnconf'
         proc = Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        ai = Core('AI')
         count = 0
         while True:
             line = proc.stdout.readline()
@@ -40,17 +52,18 @@ class LangEngine:
                     txt = ':'+wt.weather()
                     self.speak(self.createTmp(txt), 'happy')
                 else:
-                    txt = ':'+ch.getChatWithA3rt(line)
-                    self.speak(self.createTmp(txt), 'happy')
+                    self.throw_responder(ai, count, line)
             if not line and proc.poll() is not None:
                 break
         self.speak(self.createTmp(':システムを終了します。'))
         proc.kill()
+        ai.save()
         self.speak('close')
 
     def input_text(self):
         ai = Core('AI')
         self.speak('start_text', 'happy')
+        count = 0
         while True:
             txt = input('>> ')
             if '終了' == txt:
@@ -61,9 +74,7 @@ class LangEngine:
                 txt = ':'+wt.weather()
                 self.speak(self.createTmp(txt), 'happy')
             else:
-                txt = ':'+ai.dialogue(txt)
-                print(txt)
-                self.speak(self.createTmp(txt), 'happy')
+                count = self.throw_responder(ai, count, txt)
         ai.save()
             # sleep(2)
             # self.speak('next', 'happy')

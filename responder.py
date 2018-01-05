@@ -1,15 +1,18 @@
 import random
 from configparser import ConfigParser
 from datetime import datetime
+from NLP import NLP
+import chat
 
 class Responder:
     """AIの応答を制御するクラス。
     プロパティ:
     name -- Responderオブジェクトの名前
     """
-    def __init__(self, name):
+    def __init__(self, name, nlp):
         """文字列を受け取り、自身のnameに設定する。"""
         self._name = name
+        self._nlp = nlp
 
     def response(self, *args):
         """ユーザーからの入力(text)を受け取り、AIの応答を生成して返す。"""
@@ -25,7 +28,7 @@ class WhatResponder(Responder):
     AIの応答を制御する思考エンジンクラス。
     入力に対して疑問形で聞き返す。
     """
-    def response(self, text):
+    def response(self, text, parts):
         """文字列textを受け取り、'{text}ってなに？'という形式で返す。"""
         return '{}ってなに？'.format(text)
 
@@ -33,12 +36,12 @@ class GreetingResponder(Responder):
     """
     挨拶用の応答モジュール
     """
-    def __init__(self, name, dic):
+    def __init__(self, name, nlp, dic):
         """コンストラクタ"""
-        super().__init__(name)
+        super().__init__(name, nlp)
         self._dict = dic
 
-    def response(self, text):
+    def response(self, text, parts):
         """
         応答ロジック
         """
@@ -67,16 +70,37 @@ class GreetingResponder(Responder):
             RESPONSES = [self._dict[section%idx] for idx in range(1, 4)]
             return random.choice(RESPONSES)
 
+class TemplateResponder(Responder):
+    """AIの応答を制御する思考エンジンクラス。
+    登録されたパターンに反応し、関連する応答を返す。
+    """
+    def __init__(self, name, nlp, dic):
+        """コンストラクタ"""
+        super().__init__(name, nlp)
+        self._dict = dic
+
+    def response(self, text, parts):
+        """形態素解析結果partsに基づいてテンプレートを選択・生成して返す。"""
+        keywords = [word for word, part in parts if self._nlp.is_keyword(part)]
+        count = len(keywords)
+        if count > 0:
+            if count in self._dict:
+                template = random.choice(self._dict[count].split('|'))
+                for keyword in keywords:
+                    template = template.replace('%noun%', keyword, 1)
+                return template
+        return chat.getChatWithA3rt(text)
+
 class PatternResponder(Responder):
     """AIの応答を制御する思考エンジンクラス。
     登録されたパターンに反応し、関連する応答を返す。
     """
-    def __init__(self, name, dic):
+    def __init__(self, name, nlp, dic):
         """コンストラクタ"""
-        super().__init__(name)
+        super().__init__(name, nlp)
         self._dict = dic
 
-    def response(self, text):
+    def response(self, text, parts):
         """ユーザーの入力に合致するパターンがあれば、関連するフレーズを返す。"""
         section = 'patterns'
         for ptn in self._dict.keys():

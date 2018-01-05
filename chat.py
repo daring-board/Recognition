@@ -20,7 +20,6 @@ def getChatWithA3rt(txt):
 	key ='GRSpAwn90yClWzDvlfG4sWMxzwWcR16r'
 	client = pya3rt.TalkClient(key)
 	reply_message = client.talk(txt)
-	print(reply_message)
 	print(reply_message['results'][0]['reply'])
 	return reply_message['results'][0]['reply']
 
