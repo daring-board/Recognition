@@ -1,5 +1,6 @@
 from responder import Responder, WhatResponder, RandomResponder
 from responder import GreetingResponder, PatternResponder
+from dictionary import Dictionary
 
 class Core:
     """コアクラス。
@@ -14,13 +15,20 @@ class Core:
         ’What' Responderインスタンスを作成し、保持する。
         """
         self._name = name
-        self._responder = PatternResponder('Pattern')
-#        self._responder = GreetingResponder('Greeting')
+        self._dict = Dictionary('pattern')
+        self._responder = PatternResponder('Pattern', self._dict.data)
+#        self._responder = GreetingResponder('Greeting', Dictionary('greeting'))
 #        self._responder = RandomResponder('Random')
 
     def dialogue(self, text):
         """ユーザーからの入力を受け取り、Responderに処理させた結果を返す。"""
-        return self._responder.response(text)
+        res = self._responder.response(text)
+        print(res)
+        self._dict.study(text)
+        return res
+
+    def save(self):
+        self._dict.save()
 
     @property
     def name(self):

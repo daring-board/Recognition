@@ -64,6 +64,7 @@ class LangEngine:
                 txt = ':'+ai.dialogue(txt)
                 print(txt)
                 self.speak(self.createTmp(txt), 'happy')
+        ai.save()
             # sleep(2)
             # self.speak('next', 'happy')
 
