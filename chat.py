@@ -16,7 +16,7 @@ def getChat(filename):
 	return line
 
 def getChatWithA3rt(txt):
-	key ='GRSpAwn90yClWzDvlfG4sWMxzwWcR16r'
+	key ='***'
 	client = pya3rt.TalkClient(key)
 	reply_message = client.talk(txt)
 	return reply_message['results'][0]['reply']
