@@ -30,7 +30,6 @@ class Core:
         r_type = 'markov'
         self._dict[r_type] = Dictionary(r_type, self._nlp)
 
-
     def configure(self, r_type):
         self.r_type = r_type
         dic = self._dict[r_type]
@@ -57,6 +56,8 @@ class Core:
         r_type = 'template'
         self._dict[r_type].save()
         r_type = 'pattern'
+        self._dict[r_type].save()
+        r_type = 'markov'
         self._dict[r_type].save()
 
     @property

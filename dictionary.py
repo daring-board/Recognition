@@ -9,9 +9,9 @@ class Dictionary:
         """コンストラクタ"""
         self.target = target
         self.f_path = 'brain/dicts/%s.ini'%target
-        self.touch_dicts(target)
-        lines = [line.strip() for line in open(self.f_path, 'r', encoding='utf-8')]
         if target == 'template':
+            self.touch_dicts(target)
+            lines = [line.strip() for line in open(self.f_path, 'r', encoding='utf-8')]
             self._dict = {int(l.split('\t')[0]): '' for l in lines}
             for l in lines:
                 count, template = l.split('\t')
@@ -24,6 +24,8 @@ class Dictionary:
             self._mkv = Markov()
             self._mkv.load('brain/dicts/markov.dat')
         else:
+            self.touch_dicts(target)
+            lines = [line.strip() for line in open(self.f_path, 'r', encoding='utf-8')]
             self._dict = {l.split('\t')[0]: l.split('\t')[1] for l in lines}
         self._nlp = nlp
 
@@ -99,7 +101,7 @@ class Dictionary:
                     f.write('%s\t%s\n'%(key, self._dict[key]))
 
     def save_markov(self):
-        self._markov.save('markov.dat')
+        self._mkv.save('markov.dat')
 
     def save_template(self):
         with open(self.f_path, mode='w', encoding='utf-8') as f:

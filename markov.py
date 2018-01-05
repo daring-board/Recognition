@@ -1,7 +1,6 @@
 import os
 import sys
 from random import choice
-from collections import defaultdict
 import re
 import copy
 import dill
@@ -22,7 +21,7 @@ class Markov:
         self._dic -- マルコフ辞書。 _dic['prefix1']['prefix2'] == ['suffixes']
         self._starts -- 文章が始まる単語の数。 _starts['prefix'] == count
         """
-        self._dic = defaultdict(lambda: {})
+        self._dic = {}
         self._starts = {}
 
     def add_sentence(self, parts):
@@ -46,10 +45,20 @@ class Markov:
         self.__add_suffix(prefix1, prefix2, Markov.ENDMARK)
 
     def __add_suffix(self, prefix1, prefix2, suffix):
-        self._dic[prefix1][prefix2].append(suffix)
+        if prefix1 in self._dic.keys():
+            if prefix2 in self._dic[prefix1].keys():
+                self._dic[prefix1][prefix2].append(suffix)
+            else:
+                self._dic[prefix1][prefix2] = [suffix]
+        else:
+            self._dic[prefix1] = {}
+            self._dic[prefix1][prefix2] = [suffix]
 
     def __add_start(self, prefix1):
-        self._starts[prefix1] += 1
+        if prefix1 in self._starts.keys():
+            self._starts[prefix1] += 1
+        else:
+            self._starts[prefix1] = 0
 
     def generate(self, keyword):
         """keywordをprefix1とし、そこから始まる文章を生成して返す。"""
