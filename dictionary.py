@@ -8,6 +8,7 @@ class Dictionary:
     def __init__(self, target, nlp):
         """コンストラクタ"""
         self.target = target
+        if target == 'what': target = 'pattern'
         self.f_path = 'brain/dicts/%s.ini'%target
         if target == 'template':
             self.touch_dicts(target)
@@ -50,7 +51,7 @@ class Dictionary:
         return self._dict
 
     def study(self, text, parts):
-        if self.target == 'patten':
+        if self.target == 'patten' or self.target == 'what':
             self.study_pattern(text, parts)
         elif self.target == 'template':
             self.study_template(text, parts)
@@ -95,7 +96,7 @@ class Dictionary:
             self.save_template()
         elif self.target == 'markov':
             self.save_markov()
-        else:
+        elif self.target == 'pattern' or self.target == 'what':
             with open(self.f_path, mode='w', encoding='utf-8') as f:
                 for key in self._dict:
                     f.write('%s\t%s\n'%(key, self._dict[key]))

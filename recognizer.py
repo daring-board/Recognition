@@ -6,7 +6,7 @@ from time import sleep
 from subprocess import Popen
 
 import chat as ch
-import weather as wt
+from weather import Weather
 import audio_output as ao
 from core import Core
 
@@ -62,6 +62,7 @@ class LangEngine:
 
     def input_text(self):
         ai = Core('AI')
+        wt = Weather()
         self.speak('start_text', 'happy')
         count = 0
         while True:
@@ -71,7 +72,7 @@ class LangEngine:
                 self.speak('close')
                 break
             if '天気予報' in txt:
-                txt = ':'+wt.weather()
+                txt = ':'+wt.weather(txt)
                 self.speak(self.createTmp(txt))
             else:
                 count = self.throw_responder(ai, count, txt)

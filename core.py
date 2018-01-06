@@ -57,6 +57,8 @@ class Core:
         self._dict[r_type].save()
         r_type = 'pattern'
         self._dict[r_type].save()
+        r_type = 'what'
+        self._dict[r_type].save()
         r_type = 'markov'
         self._dict[r_type].save()
 
