@@ -30,7 +30,8 @@ class WhatResponder(Responder):
     """
     def response(self, text, parts):
         """文字列textを受け取り、'{text}ってなに？'という形式で返す。"""
-        return '{}ってなに？'.format(text)
+        keywords = [word for word, part in parts if self._nlp.is_keyword(part)]
+        return '{}ってなに？'.format(keywords[0])
 
 class GreetingResponder(Responder):
     """
