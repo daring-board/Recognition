@@ -5,6 +5,7 @@
 * http://julius.osdn.jp/
 * https://qiita.com/mkgask/items/0bf9c26dc96e7b0b45ac
 * https://a3rt.recruit-tech.co.jp/product/talkAPI/
+* http://weather.livedoor.com/weather_hacks/webservice
 
 ## Usage
 usage: python recognizer.py [option]  

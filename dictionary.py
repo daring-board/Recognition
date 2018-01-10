@@ -77,7 +77,7 @@ class Dictionary:
         if count not in self._dict.keys():
             self._dict[count] = template
         elif template not in self._dict[count]:
-            self._dict[count] += '|'+text
+            self._dict[count] += '|'+template
 
     def study_pattern(self, text, parts):
         """ユーザーの発言textを、形態素partsに基づいてパターン辞書に保存する。"""

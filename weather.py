@@ -27,7 +27,7 @@ class Weather:
         for key in self.loc_dic.keys():
             if key in txt: loc = key
         if loc == '' and self.loc == '':
-            print('no loc')
+            print(res)
             return res
         else:
             if loc != '': self.loc = loc
@@ -45,5 +45,5 @@ class Weather:
         print(url)
         html = urllib.request.urlopen(url)
         jsonfile = json.loads(html.read().decode('utf-8'))
-        print(jsonfile['description'])
+        print(jsonfile['description']['text'])
         return jsonfile['description']['text'].replace('\n', '')

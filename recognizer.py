@@ -84,7 +84,7 @@ class LangEngine:
     emotion: Can specifiy following list
             [normal, angry, bashful, happy, sad]
     '''
-    def speak(self, txt, emotion='neutral'):
+    def speak(self, txt, emotion='netural'):
         root_path = 'speaker'
         bin_path = 'speaker/bin'
         txt_path = 'speaker/txt'
