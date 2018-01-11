@@ -21,7 +21,8 @@ class LangEngine:
         return tmp
 
     def throw_responder(self, ai, count, txt):
-        r_attrs = ['greeting', 'template', 'pattern', 'markov', 'what']
+#        r_attrs = ['greeting', 'template', 'pattern', 'markov', 'what']
+        r_attrs = ['greeting', 'markov', 'markov', 'markov', 'what']
 #        r_attrs = ['greeting', 'markov']
         attr = r_attrs[0] if count == 0 else random.choice(r_attrs[1:])
         ai.configure(attr)
@@ -43,19 +44,21 @@ class LangEngine:
             line = line.decode('sjis')
             if 'pass1_best:' in line:
                 line = line.replace(' ', '')
-                if 'プロセスを終了' in line: break
                 if len(line.split(':')[1].strip()) == 0: continue
+                line = line.split(':')[1].strip()
                 print(line)
-                #self.speak(self.createTmp(line))
+                if 'プロセスを終了' in line:
+                    self.speak(self.createTmp(':システムを終了します。'))
+                    self.speak('close')
+                    break
                 if '天気を教えて' in line or '天気予報' in line:
-                    txt = ':'+wt.weather()
+                    txt = ':'+wt.weather(txt)
                     self.speak(self.createTmp(txt), 'happy')
                 else:
-                    self.throw_responder(ai, count, line)
-                    count += 1
+                    count = self.throw_responder(ai, count, line)
+                #self.speak(self.createTmp(line))
             if not line and proc.poll() is not None:
                 break
-        self.speak(self.createTmp(':システムを終了します。'))
         proc.kill()
         ai.save()
         self.speak('close')
