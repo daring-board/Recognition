@@ -103,8 +103,18 @@ class MarkovResponder(Responder):
     def response(self, text, parts):
         """形態素のリストpartsからキーワードを選択し、それに基づく文章を生成して返す。
         キーワードに該当するものがなかった場合はランダム辞書から返す。"""
+        words = []
         keyword = next((w for w, p in parts if self._nlp.is_keyword(p)), '')
+        if keyword == '':
+            ''' 対話候補文を構成するためのキーワードを入力から取得できなかった場合
+            '''
+            return None
         response = self._obj.generate(keyword)
+        if response is None:
+            words = self._nlp.similar_words(keyword)
+        for keyword in words:
+            if response is not None: break
+            response = self._obj.generate(keyword)
         return response if response else 'あぁ、えぇ～っと'
 
 class PatternResponder(Responder):

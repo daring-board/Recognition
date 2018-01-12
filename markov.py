@@ -69,7 +69,7 @@ class Markov:
         keys = list(self._starts.keys())
         ch = choice(keys)
         prefix1 = keyword
-        if keyword not in self._dic.keys(): prefix1 = ch
+        if keyword not in self._dic.keys(): return None#prefix1 = ch
         # prefix1をもとにprefix2をランダムに選択する
         prefix2 = choice(list(self._dic[prefix1].keys()))
         # 文章の始めの単語2つをwordsに設定する

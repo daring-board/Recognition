@@ -22,6 +22,13 @@ class NLP:
         """品詞partが学習すべきキーワードであるかどうかを真偽値で返す。"""
         return bool(re.match(r'名詞,(一般|代名詞|固有名詞|サ変接続|形容動詞語幹)', part))
 
+    def similar_words(self, keyword):
+        """
+        keywordに入力された単語と似た単語のリストを返却する
+        """
+        similar_rugby_list = self.w2v.most_similar(keyword)
+        return similar_rugby_list
+
     def check(self):
         similar_rugby_list = self.w2v.most_similar(u'ラグビー')
         for similar_set in similar_rugby_list:

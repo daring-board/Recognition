@@ -21,14 +21,22 @@ class LangEngine:
         return tmp
 
     def throw_responder(self, ai, count, txt):
-#        r_attrs = ['greeting', 'template', 'pattern', 'markov', 'what']
-        r_attrs = ['greeting', 'markov', 'markov', 'what']
+        r_attrs = ['greeting', 'template', 'pattern', 'markov', 'what']
+#        r_attrs = ['greeting', 'markov', 'markov', 'what']
 #        r_attrs = ['greeting', 'markov']
-        attr = r_attrs[0] if count == 0 else random.choice(r_attrs[1:])
+#        attr = r_attrs[0] if count == 0 else random.choice(r_attrs[1:])
+        attr = r_attrs[0]
+        if count != 0:
+            attr = r_attrs[3]
         ai.configure(attr)
-        txt = ':'+ai.dialogue(txt)
-        print(txt)
-        self.speak(self.createTmp(txt), 'happy')
+        res = ai.dialogue(txt)
+        if not res:
+            attr = random.choice(r_attrs[1:3])
+            ai.configure(attr)
+            res = ai.dialogue(txt)
+        res = ':'+res
+        print('%s%s'%(attr, res))
+        self.speak(self.createTmp(res), 'happy')
         count += 1
         return count
 
