@@ -1,5 +1,13 @@
 ﻿# Recognition
 ## Project Zero
+
+## Requirements
+pya3rt
+pyaudio
+janome
+gensim
+dill
+
 ## Referrence
 * http://sandmark.hateblo.jp/entry/2017/10/14/003000
 * http://myuon-myon.hatenablog.com/entry/20120723/1343009359

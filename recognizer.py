@@ -12,6 +12,13 @@ from core import Core
 
 class LangEngine:
 
+    def __init__(self):
+        '''
+        コンストラクタ　
+        : コアモジュールをコンストラクト
+        '''
+        self.ai = Core('AI')
+
     def createTmp(self, line, op='def'):
         tmp = 'tmp_%s'%op
         txt_path = 'speaker/txt/%s.txt'%tmp
@@ -20,7 +27,7 @@ class LangEngine:
             f.write(line+'\n')
         return tmp
 
-    def throw_responder(self, ai, count, txt):
+    def throw_responder(self, count, txt):
         r_attrs = ['greeting', 'template', 'pattern', 'markov', 'what']
 #        r_attrs = ['greeting', 'markov', 'markov', 'what']
 #        r_attrs = ['greeting', 'markov']
@@ -28,23 +35,41 @@ class LangEngine:
         attr = r_attrs[0]
         if count != 0:
             attr = r_attrs[3]
-        ai.configure(attr)
-        res = ai.dialogue(txt)
+        self.ai.configure(attr)
+        res = self.ai.dialogue(txt)
         if not res:
             attr = random.choice(r_attrs[1:3])
-            ai.configure(attr)
-            res = ai.dialogue(txt)
+            self.ai.configure(attr)
+            res = self.ai.dialogue(txt)
         res = ':'+res
         print('%s%s'%(attr, res))
         self.speak(self.createTmp(res), 'happy')
         count += 1
         return count
 
+    def main_proc(self, txt, count):
+        '''
+        return: is_break: {True, False}
+        '''
+        if '終了' == txt:
+            self.speak(self.createTmp(':システムを終了します。'))
+            self.speak('close')
+            return True, count
+        if ('天気予報' in txt) or ('天気を教えて' in txt):
+            wt = Weather()
+            txt = ':'+wt.weather(txt)
+            self.speak(self.createTmp(txt), 'happy')
+        else:
+            count = self.throw_responder(count, txt)
+        return False, count
+
     def input_audio(self):
+        '''
+        Method for 対話モード
+        '''
         #julius -C main.jconf -dnnconf main.dnnconf
         cmd = 'julius_int\\julius.exe -C julius_int/main.jconf -dnnconf julius_int/main.dnnconf'
         proc = Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        ai = Core('AI')
         self.speak('start_intractive', 'happy')
         count = 0
         while True:
@@ -55,41 +80,25 @@ class LangEngine:
                 if len(line.split(':')[1].strip()) == 0: continue
                 line = line.split(':')[1].strip()
                 print(line)
-                if 'プロセスを終了' in line:
-                    self.speak(self.createTmp(':システムを終了します。'))
-                    self.speak('close')
-                    break
-                if '天気を教えて' in line or '天気予報' in line:
-                    txt = ':'+wt.weather(txt)
-                    self.speak(self.createTmp(txt), 'happy')
-                else:
-                    count = self.throw_responder(ai, count, line)
-                #self.speak(self.createTmp(line))
+                is_break, count = self.main_proc(line, count)
+                if is_break: break
             if not line and proc.poll() is not None:
                 break
         proc.kill()
-        ai.save()
+        self.ai.save()
         self.speak('close')
 
     def input_text(self):
-        ai = Core('AI')
-        wt = Weather()
+        '''
+        Method for テキストモード
+        '''
         self.speak('start_text', 'happy')
         count = 0
         while True:
             txt = input('>> ')
-            if '終了' == txt:
-                self.speak(self.createTmp(':システムを終了します。'))
-                self.speak('close')
-                break
-            if '天気予報' in txt:
-                txt = ':'+wt.weather(txt)
-                self.speak(self.createTmp(txt))
-            else:
-                count = self.throw_responder(ai, count, txt)
-        ai.save()
-            # sleep(2)
-            # self.speak('next', 'happy')
+            is_break, count = self.main_proc(txt, count)
+            if is_break: break
+        self.ai.save()
 
     '''
     emotion: Can specifiy following list
