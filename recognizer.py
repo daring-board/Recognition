@@ -37,8 +37,12 @@ class LangEngine:
             attr = r_attrs[3]
         self.ai.configure(attr)
         res = self.ai.dialogue(txt)
-        if not res:
+        if res == 'No keyword':
             attr = random.choice(r_attrs[1:3])
+            self.ai.configure(attr)
+            res = self.ai.dialogue(txt)
+        elif res == 'Unkwon words':
+            attr = r_attrs[4]
             self.ai.configure(attr)
             res = self.ai.dialogue(txt)
         res = ':'+res

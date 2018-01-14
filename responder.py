@@ -108,14 +108,15 @@ class MarkovResponder(Responder):
         if keyword == '':
             ''' 対話候補文を構成するためのキーワードを入力から取得できなかった場合
             '''
-            return None
-        response = self._obj.generate(keyword)
-        if response is None:
-            words = self._nlp.similar_words(keyword)
-        for keyword in words:
-            if response is not None: break
-            response = self._obj.generate(keyword)
-        return response if response else 'あぁ、えぇ～っと'
+            return 'No keyword'
+        words = [item[0] for item in self._nlp.similar_words(keyword)]
+        words.append(keyword)
+        random.shuffle(words)
+        print(words)
+        for word in words:
+            response = self._obj.generate(word)
+            if response: break
+        return response if response else 'Unkwon words'
 
 class PatternResponder(Responder):
     """AIの応答を制御する思考エンジンクラス。
