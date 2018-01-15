@@ -2,6 +2,8 @@ import re
 from janome.tokenizer import Tokenizer
 from gensim.models import KeyedVectors
 from gensim.models import word2vec
+import subprocess
+from subprocess import Popen
 
 class NLP:
     '''
@@ -9,18 +11,31 @@ class NLP:
     '''
     def __init__(self):
         """コンストラクタ"""
-        self.TOKENIZER = Tokenizer()
 #        self.w2v = KeyedVectors.load_word2vec_format('./brain/vocab/entity_vector.model.bin', binary=True)
         self.w2v = word2vec.Word2Vec.load('./brain/vocab/word2vec.gensim.model')
 
     def analyze(self, text):
         """文字列textを形態素解析し、[(surface, parts)]の形にして返す。"""
-        token = self.TOKENIZER.tokenize(text)
-        return [(t.surface, t.part_of_speech) for t in token]
+        root_path = '.'
+        input_path = '%s/input'%root_path
+        output_path = '%s/output'%root_path
+        with open('%s/input.csv'%input_path, 'w', encoding='shift-jis') as f:
+            f.write('文Id,文\n1,%s\n'%text.strip())
+        cmd = 'java -jar -Xmx512M %s/compoundAnalyzer.jar -i %s/input.csv -o %s'%(root_path, input_path, output_path)
+        #print(cmd)
+        proc = Popen(cmd)
+        proc.wait()
+        data = [line.strip().split(',') for line in open(output_path+'/input_cw.csv', 'r')][1:]
+        data = [(item[1].strip('"'), item[2].strip('"')) for item in data]
+        print(data)
+        return data
 
     def is_keyword(self, part):
         """品詞partが学習すべきキーワードであるかどうかを真偽値で返す。"""
-        return bool(re.match(r'名詞,(一般|代名詞|固有名詞|サ変接続|形容動詞語幹)', part))
+        if '複合語-事物-一般' in part:
+            return True, part
+        else:
+            return False, part
 
     def similar_words(self, keyword):
         """
@@ -41,4 +56,4 @@ class NLP:
 
 if __name__ == '__main__':
     nlp = NLP()
-    nlp.check()
+    print(nlp.analyze('日本経済新聞社によると、関ジャニ∞の渋谷君が千代田区のスペイン村で豪遊した帰りに、六本木ヒルズの無国籍レストランで地中海料理かフランス料理か日本料理か迷ったらしいんだけど。'))

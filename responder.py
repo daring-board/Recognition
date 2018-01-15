@@ -104,6 +104,7 @@ class MarkovResponder(Responder):
         """形態素のリストpartsからキーワードを選択し、それに基づく文章を生成して返す。
         キーワードに該当するものがなかった場合はランダム辞書から返す。"""
         words = []
+        print([w for w, p in parts if self._nlp.is_keyword(p)])
         keyword = next((w for w, p in parts if self._nlp.is_keyword(p)), '')
         if keyword == '':
             ''' 対話候補文を構成するためのキーワードを入力から取得できなかった場合
