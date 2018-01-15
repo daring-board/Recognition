@@ -104,11 +104,12 @@ class MarkovResponder(Responder):
         """形態素のリストpartsからキーワードを選択し、それに基づく文章を生成して返す。
         キーワードに該当するものがなかった場合はランダム辞書から返す。"""
         words = []
-        keyword = next((w for w, p in parts if self._nlp.is_keyword(p)), '')
-        if keyword == '':
+        keywords = [w for w, p in parts if self._nlp.is_keyword(p)]
+        if len(keywords) == 0:
             ''' 対話候補文を構成するためのキーワードを入力から取得できなかった場合
             '''
             return 'No keyword'
+        keyword = random.choice(keywords)
         words = [item[0] for item in self._nlp.similar_words(keyword)]
         words.append(keyword)
         random.shuffle(words)

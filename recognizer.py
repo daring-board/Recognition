@@ -90,7 +90,6 @@ class LangEngine:
                 break
         proc.kill()
         self.ai.save()
-        self.speak('close')
 
     def input_text(self):
         '''
