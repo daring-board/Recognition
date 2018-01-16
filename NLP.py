@@ -26,8 +26,8 @@ class NLP:
         proc = Popen(cmd)
         proc.wait()
         data = [line.strip().split(',') for line in open(output_path+'/input_cw.csv', 'r')][1:]
-        data = [(item[1].strip('"'), item[2].strip('"')) for item in data]
         print(data)
+        data = [(item[1].strip('"'), item[2].strip('"')) for item in data]
         return data
 
     def is_keyword(self, part):
