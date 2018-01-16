@@ -32,7 +32,8 @@ class NLP:
 
     def is_keyword(self, part):
         """品詞partが学習すべきキーワードであるかどうかを真偽値で返す。"""
-        if '複合語-事物-一般' in part:
+        print(part)
+        if '事物' in part:
             return True, part
         else:
             return False, part

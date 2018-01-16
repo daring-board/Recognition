@@ -30,7 +30,7 @@ class WhatResponder(Responder):
     """
     def response(self, text, parts):
         """文字列textを受け取り、'{text}ってなに？'という形式で返す。"""
-        keywords = [word for word, part in parts if self._nlp.is_keyword(part)]
+        keywords = [word for word, part in parts if self._nlp.is_keyword(part)[0]]
         if len(keywords) == 0:
             return '%sってどういうこと？'%text
         return '{}ってなに？'.format(keywords[0])
@@ -84,7 +84,7 @@ class TemplateResponder(Responder):
 
     def response(self, text, parts):
         """形態素解析結果partsに基づいてテンプレートを選択・生成して返す。"""
-        keywords = [word for word, part in parts if self._nlp.is_keyword(part)]
+        keywords = [word for word, part in parts if self._nlp.is_keyword(part)[0]]
         count = len(keywords)
         if count > 0:
             if count in self._dict:
@@ -104,7 +104,8 @@ class MarkovResponder(Responder):
         """形態素のリストpartsからキーワードを選択し、それに基づく文章を生成して返す。
         キーワードに該当するものがなかった場合はランダム辞書から返す。"""
         words = []
-        keywords = [w for w, p in parts if self._nlp.is_keyword(p)]
+        keywords = [w for w, p in parts if self._nlp.is_keyword(p)[0]]
+        print(keywords)
         if len(keywords) == 0:
             ''' 対話候補文を構成するためのキーワードを入力から取得できなかった場合
             '''
