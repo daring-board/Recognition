@@ -105,6 +105,7 @@ def main():
     if os.path.exists(dicfile):
         markov.load(dicfile)
     else:
+        print('マルコフ連鎖の辞書へ単語を登録中')
         with open(filename, 'r', encoding='utf-8') as f:
             sentences = []
             for line in f:
@@ -115,6 +116,7 @@ def main():
                 print('.', end='')
                 sys.stdout.flush()
         markov.save(dicfile)
+        print('学習完了しました！')
     print('\n')
 
     while True:

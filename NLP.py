@@ -1,9 +1,12 @@
 import re
-from janome.tokenizer import Tokenizer
 from gensim.models import KeyedVectors
 from gensim.models import word2vec
 import subprocess
 from subprocess import Popen
+from janome.tokenizer import Tokenizer
+from janome.analyzer import Analyzer
+from janome.charfilter import *
+from janome.tokenfilter import *
 
 class NLP:
     '''
@@ -16,24 +19,18 @@ class NLP:
 
     def analyze(self, text):
         """文字列textを形態素解析し、[(surface, parts)]の形にして返す。"""
-        root_path = '.'
-        input_path = '%s/input'%root_path
-        output_path = '%s/output'%root_path
-        with open('%s/input.csv'%input_path, 'w', encoding='shift-jis') as f:
-            f.write('文Id,文\n1,%s\n'%text.strip())
-        cmd = 'java -jar -Xmx512M %s/compoundAnalyzer.jar -i %s/input.csv -o %s'%(root_path, input_path, output_path)
-        #print(cmd)
-        proc = Popen(cmd)
-        proc.wait()
-        data = [line.strip().split(',') for line in open(output_path+'/input_cw.csv', 'r')][1:]
-        print(data)
-        data = [(item[1].strip('"'), item[2].strip('"')) for item in data]
+        char_filters = [UnicodeNormalizeCharFilter()]
+        tokenizer = Tokenizer()
+        tokens = tokenizer.tokenize(text)
+        token_filters = [CompoundNounFilter(), POSStopFilter(['記号']), LowerCaseFilter()]
+        a = Analyzer(char_filters, tokenizer, token_filters)
+        data = [(token.surface, token.part_of_speech) for token in a.analyze(text)]
         return data
 
     def is_keyword(self, part):
         """品詞partが学習すべきキーワードであるかどうかを真偽値で返す。"""
         print(part)
-        if '事物' in part:
+        if '名詞' in part:
             return True, part
         else:
             return False, part
@@ -56,5 +53,21 @@ class NLP:
             print(similar_set[1])
 
 if __name__ == '__main__':
-    nlp = NLP()
-    print(nlp.analyze('日本経済新聞社によると、関ジャニ∞の渋谷君が千代田区のスペイン村で豪遊した帰りに、六本木ヒルズの無国籍レストランで地中海料理かフランス料理か日本料理か迷ったらしいんだけど。'))
+#    nlp = NLP()
+#    print(nlp.analyze('日本経済新聞社によると、関ジャニ∞の渋谷君が千代田区のスペイン村で豪遊した帰りに、六本木ヒルズの無国籍レストランで地中海料理かフランス料理か日本料理か迷ったらしいんだけど。'))
+    while True:
+        text = input('> ')
+        if not text:
+            break
+        print()
+        char_filters = [UnicodeNormalizeCharFilter()]
+        tokenizer = Tokenizer()
+        tokens = tokenizer.tokenize(text)
+        print('形態素解析')
+        for token in tokens:
+            print(token)
+        token_filters = [CompoundNounFilter(), POSStopFilter(['記号','助詞']), LowerCaseFilter()]
+        a = Analyzer(char_filters, tokenizer, token_filters)
+        print('\n複合語処理後')
+        for token in a.analyze(text):
+            print(token)

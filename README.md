@@ -26,6 +26,14 @@ example: python recognizer.py 0
 > If [option] is None then recognizer.py run with intractive mode.  
 > And if [option] specified anything value then recognizer.py run with text mode.
 
+## Comment
+2018/01/17  
+形態素解析後の単語を使用してマルコフ連鎖の辞書へ単語を登録していたが、
+形態素解析の後に名詞の複合処理を追加してマルコフ連鎖の辞書へ単語登録する  
+ように変更した。
+その結果、辞書内から助詞が多数失われており、対話候補文が単語の羅列のように  
+なってしまった。
+
 ## Next Target
 * 強化学習により、行動を選択して対話を行う。  
 * 天気予報やニュースを取得して、情報をユーザーに提供する。  
