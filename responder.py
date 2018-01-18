@@ -111,6 +111,8 @@ class MarkovResponder(Responder):
             '''
             return 'No keyword'
         keyword = random.choice(keywords)
+        while self._nlp.similar_words(keyword) == []:
+            keyword = random.choice(keywords)
         words = [item[0] for item in self._nlp.similar_words(keyword)]
         words.append(keyword)
         random.shuffle(words)
@@ -118,6 +120,7 @@ class MarkovResponder(Responder):
         for word in words:
             response = self._obj.generate(word)
             if response: break
+        # response = self._obj.generate(keyword)
         return response if response else 'Unkwon words'
 
 class PatternResponder(Responder):

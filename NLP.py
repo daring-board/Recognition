@@ -39,7 +39,10 @@ class NLP:
         """
         keywordに入力された単語と似た単語のリストを返却する
         """
-        similar_rugby_list = self.w2v.most_similar(keyword)
+        try:
+            similar_rugby_list = self.w2v.most_similar(keyword)
+        except:
+            return []
         return similar_rugby_list
 
     def check(self):
