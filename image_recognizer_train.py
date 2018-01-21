@@ -1,4 +1,4 @@
-import cv2, os
+import cv2, os, sys
 import numpy as np
 from time import sleep
 
@@ -6,10 +6,16 @@ def getDatas(path):
     p_list = [path%(idx, idy) for idx in range(1, 43) for idy in range(1, 11)]
     return p_list
 
+def getDatasTIFF(path):
+    p_list = [path+f for f in os.listdir(path) if 'tiff' in f]
+    return p_list
+
 def train():
     # トレーニング画像
     train_path = './test_data/att_faces/s%d/%d.pgm'
     p_list = getDatas(train_path)
+    # train_path = './test_data/jaffedbase/jaffe/'
+    # p_list = getDatasTIFF(train_path)
 
     # テスト画像
     test_path = './test_data/test'
@@ -26,6 +32,23 @@ def train():
         img = cv2.resize(img, size)
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         img_list.append(gray)
+        # if 'HA' in pic:
+        #     rab_list.append(1)
+        # elif 'SA' in pic:
+        #     rab_list.append(2)
+        # elif 'DI' in pic:
+        #     rab_list.append(3)
+        # elif 'FE' in pic:
+        #     rab_list.append(4)
+        # elif 'NE' in pic:
+        #     rab_list.append(5)
+        # elif 'SU' in pic:
+        #     rab_list.append(6)
+        # elif 'AN' in pic:
+        #     rab_list.append(7)
+        # else:
+        #     print(pic)
+        #     rab_list.append(0)
         if ('41' in pic) or ('42' in pic):
             rab_list.append(1)
         else:
