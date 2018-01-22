@@ -7,6 +7,7 @@ from janome.tokenizer import Tokenizer
 from janome.analyzer import Analyzer
 from janome.charfilter import *
 from janome.tokenfilter import *
+from cfg_parser import Parse
 
 class NLP:
     '''
@@ -69,8 +70,14 @@ if __name__ == '__main__':
         print('形態素解析')
         for token in tokens:
             print(token)
-        token_filters = [CompoundNounFilter(), POSStopFilter(['記号','助詞']), LowerCaseFilter()]
-        a = Analyzer(char_filters, tokenizer, token_filters)
+        token_filters = [CompoundNounFilter()]#, POSStopFilter(['記号']), LowerCaseFilter()]
+        analyzer = Analyzer(char_filters, tokenizer, token_filters)
+        tokens = analyzer.analyze(text)
         print('\n複合語処理後')
-        for token in a.analyze(text):
+        tmp = []
+        for token in tokens:
             print(token)
+            tmp.append(token)
+        print('\n構文解析 by CFG')
+        p = Parse()
+        p.parser(tmp)
