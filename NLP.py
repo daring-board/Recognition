@@ -69,7 +69,7 @@ if __name__ == '__main__':
         print('形態素解析')
         for token in tokens:
             print(token)
-        token_filters = [CompoundNounFilter(), POSStopFilter(['記号','助詞']), LowerCaseFilter()]
+        token_filters = [CompoundNounFilter(), POSStopFilter(['記号']), LowerCaseFilter()]
         a = Analyzer(char_filters, tokenizer, token_filters)
         print('\n複合語処理後')
         for token in a.analyze(text):
