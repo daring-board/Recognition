@@ -42,7 +42,7 @@ class NLP:
 
     def predict_emotion(self, token):
         if not ('名詞' in token.part_of_speech\
-         or '動詞' in token.part_of_speech\
+         #or '動詞' in token.part_of_speech\
          or '形容詞' in token.part_of_speech): return [], []
         word = token.surface
         if word not in self.w2v.wv: return [], []
@@ -53,8 +53,8 @@ class NLP:
         for fact in self._em_dic:
             vec_neg = self.w2v.wv[fact[0]]
             vec_pos = self.w2v.wv[fact[1]]
-            neg = self.cos_sim(vec, vec_neg)
-            pos = self.cos_sim(vec, vec_pos)
+            neg = (self.cos_sim(vec, vec_neg) + 1)/2 * 100
+            pos = (self.cos_sim(vec, vec_pos) + 1)/2 * 100
             print('%s: %f, %s: %f'%(fact[0], neg, fact[1], pos))
             neg_label.append(fact[0])
             pos_label.append(fact[1])
@@ -90,12 +90,10 @@ class NLP:
 
 
 import matplotlib.pyplot as plt
+import radar_chart as rc
 def chart(labels, data):
     labels = ['1.Trust', '2.Joy', '3.Lovely', '4.Disgust', '5.Sorrow' , '6.Angry']
-    left = np.array(labels)
-    height = np.array(data)
-    plt.plot(left, height)
-    plt.show()
+    rc.showRadarChart(labels, data)
 
 if __name__ == '__main__':
     nlp = NLP()
