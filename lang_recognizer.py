@@ -28,23 +28,24 @@ class LangEngine:
         return tmp
 
     def throw_responder(self, count, txt):
-        r_attrs = ['greeting', 'template', 'pattern', 'markov', 'what']
+#        r_attrs = ['greeting', 'template', 'pattern', 'markov', 'what']
 #        r_attrs = ['greeting', 'markov', 'markov', 'what']
 #        r_attrs = ['greeting', 'markov']
+        r_attrs = ['greeting', 'spec_repre']
 #        attr = r_attrs[0] if count == 0 else random.choice(r_attrs[1:])
         attr = r_attrs[0]
         if count != 0:
-            attr = r_attrs[3]
+            attr = r_attrs[1]
         self.ai.configure(attr)
         res = self.ai.dialogue(txt)
-        if res == 'No keyword':
-            attr = random.choice(r_attrs[1:3])
-            self.ai.configure(attr)
-            res = self.ai.dialogue(txt)
-        elif res == 'Unkwon words':
-            attr = r_attrs[4]
-            self.ai.configure(attr)
-            res = self.ai.dialogue(txt)
+        # if res == 'No keyword':
+        #     attr = random.choice(r_attrs[1:3])
+        #     self.ai.configure(attr)
+        #     res = self.ai.dialogue(txt)
+        # elif res == 'Unkwon words':
+        #     attr = r_attrs[4]
+        #     self.ai.configure(attr)
+        #     res = self.ai.dialogue(txt)
         res = ':'+res
         print('%s%s'%(attr, res))
         self.speak(self.createTmp(res), 'happy')

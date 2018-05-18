@@ -128,3 +128,6 @@ template:秘密です
 嫌悪:信頼
 憂い:喜び
 怒り:愛しい
+
+* 固有表現抽出
+https://qiita.com/Hironsan/items/326b66711eb4196aa9d4

@@ -156,3 +156,42 @@ class RandomResponder(Responder):
     def response(self, _):
         """ユーザーからの入力は受け取るが、使用せずにランダムな応答を返す。"""
         return choice(RandomResponder.RESPONSES)
+
+
+from janome.tokenizer import Tokenizer
+from janome.analyzer import Analyzer
+from janome.charfilter import *
+from janome.tokenfilter import *
+import pycrfsuite
+class SpecRepreResponder(Responder):
+    """
+    AIの応答を制御する思考エンジンクラス。
+    固有表現を抽出して、割与えられたラベルを確認する。
+    """
+    def __init__(self, name, nlp):
+        """コンストラクタ"""
+        super().__init__(name, nlp)
+
+    def response(self, text, parts):
+        char_filters = [UnicodeNormalizeCharFilter()]
+        tokenizer = Tokenizer()
+        tokens = tokenizer.tokenize(text)
+        # token_filters = [CompoundNounFilter(), POSStopFilter(['記号']), LowerCaseFilter()]
+        token_filters = [POSStopFilter(['記号']), LowerCaseFilter()]
+        a = Analyzer(char_filters, tokenizer, token_filters)
+        data = [str(token) for token in a.analyze(text)]
+        tmp = []
+        for item in data:
+            item = item.split('\t')
+            part = item[1].split(',')
+            del item[-1]
+            item.extend(part)
+            print(item)
+            tmp.append(item)
+        sent = self._nlp.sent2features(tmp)
+        tagger = pycrfsuite.Tagger()
+        tagger.open('brain/specific_representation/model.crfsuite')
+        print(sent)
+        y_pred = tagger.tag(sent)
+        print(y_pred)
+        return text
