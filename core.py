@@ -1,8 +1,9 @@
 from responder import Responder, WhatResponder, RandomResponder
 from responder import GreetingResponder, PatternResponder
-from responder import TemplateResponder, MarkovResponder
+from responder import TemplateResponder, MarkovResponder, SpecRepreResponder
 from dictionary import Dictionary
 from NLP import NLP
+from CRF import CRF
 
 class Core:
     """コアクラス。
@@ -29,6 +30,8 @@ class Core:
         self._dict[r_type] = Dictionary(r_type, self._nlp)
         r_type = 'markov'
         self._dict[r_type] = Dictionary(r_type, self._nlp)
+        r_type = 'spec_repre'
+        self._dict[r_type] = Dictionary(r_type, CRF())
 
     def configure(self, r_type):
         self.r_type = r_type
@@ -41,6 +44,8 @@ class Core:
             self._responder = GreetingResponder(r_type, self._nlp, dic.data)
         elif r_type == 'markov':
             self._responder = MarkovResponder(r_type, self._nlp, dic.obj)
+        elif r_type == 'spec_repre':
+            self._responder = SpecRepreResponder(r_type, CRF())
         else:
             self._responder = WhatResponder(r_type, self._nlp)
 

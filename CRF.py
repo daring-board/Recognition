@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
+import sys
 from itertools import chain
 import pycrfsuite
 import sklearn
 from sklearn.metrics import classification_report
 from sklearn.preprocessing import LabelBinarizer
 import codecs
+from janome.tokenizer import Tokenizer
+from janome.analyzer import Analyzer
+from janome.charfilter import *
+from janome.tokenfilter import *
 
 class CRF:
     ''' コンストラクタ'''
@@ -163,36 +168,63 @@ if __name__ == '__main__':
     train_sents = c.iob_sents('train')
     test_sents = c.iob_sents('test')
     crf = CRF()
-    print(test_sents[:3])
-    X_train = [crf.sent2features(s) for s in train_sents]
-    y_train = [crf.sent2labels(s) for s in train_sents]
 
-    X_test = [crf.sent2features(s) for s in test_sents]
-    y_test = [crf.sent2labels(s) for s in test_sents]
+    mode = sys.argv[1]
+    if mode == 'train':
+        print(test_sents[:3])
+        X_train = [crf.sent2features(s) for s in train_sents]
+        y_train = [crf.sent2labels(s) for s in train_sents]
 
-    trainer = pycrfsuite.Trainer(verbose=False)
-    for xseq, yseq in zip(X_train, y_train):
-        trainer.append(xseq, yseq)
+        X_test = [crf.sent2features(s) for s in test_sents]
+        y_test = [crf.sent2labels(s) for s in test_sents]
 
-    trainer.set_params({
-        'c1': 1.0,   # coefficient for L1 penalty
-        'c2': 1e-3,  # coefficient for L2 penalty
-        'max_iterations': 50,  # stop earlier
+        trainer = pycrfsuite.Trainer(verbose=False)
+        for xseq, yseq in zip(X_train, y_train):
+            trainer.append(xseq, yseq)
 
-        # include transitions that are possible, but not observed
-        'feature.possible_transitions': True
-    })
+        trainer.set_params({
+            'c1': 1.0,   # coefficient for L1 penalty
+            'c2': 1e-3,  # coefficient for L2 penalty
+            'max_iterations': 50,  # stop earlier
 
-    trainer.train('brain/specific_representation/model.crfsuite')
-    tagger = pycrfsuite.Tagger()
-    tagger.open('brain/specific_representation/model.crfsuite')
+            # include transitions that are possible, but not observed
+            'feature.possible_transitions': True
+        })
 
-    # example_sent = test_sents[0]
-    # print(' '.join(crf.sent2tokens(example_sent)))
-    #
-    # print("Predicted:", ' '.join(tagger.tag(crf.sent2features(example_sent))))
-    # print("Correct:  ", ' '.join(crf.sent2labels(example_sent)))
+        trainer.train('brain/specific_representation/model.crfsuite')
+        tagger = pycrfsuite.Tagger()
+        tagger.open('brain/specific_representation/model.crfsuite')
 
-    # テストデータ全体を予測
-    y_pred = [tagger.tag(xseq) for xseq in X_test]
-    print(crf.bio_classification_report(y_test, y_pred))
+        # example_sent = test_sents[0]
+        # print(' '.join(crf.sent2tokens(example_sent)))
+        #
+        # print("Predicted:", ' '.join(tagger.tag(crf.sent2features(example_sent))))
+        # print("Correct:  ", ' '.join(crf.sent2labels(example_sent)))
+
+        # テストデータ全体を予測
+        y_pred = [tagger.tag(xseq) for xseq in X_test]
+        print(crf.bio_classification_report(y_test, y_pred))
+    else:
+        while True:
+            text = input('>> ')
+            char_filters = [UnicodeNormalizeCharFilter()]
+            tokenizer = Tokenizer()
+            tokens = tokenizer.tokenize(text)
+            token_filters = [POSStopFilter(['記号']), LowerCaseFilter()]
+            a = Analyzer(char_filters, tokenizer, token_filters)
+            data = [str(token) for token in a.analyze(text)]
+            tmp = []
+            for item in data:
+                item = item.split('\t')
+                part = item[1].split(',')
+                del item[-1]
+                print(item, end="")
+                item.extend(part)
+                tmp.append(item)
+            print()
+            sent = crf.sent2features(tmp)
+            tagger = pycrfsuite.Tagger()
+            tagger.open('brain/specific_representation/model.crfsuite')
+            # for part in sent: print(part)
+            y_pred = tagger.tag(sent)
+            print(y_pred)

@@ -186,12 +186,11 @@ class SpecRepreResponder(Responder):
             part = item[1].split(',')
             del item[-1]
             item.extend(part)
-            print(item)
             tmp.append(item)
         sent = self._nlp.sent2features(tmp)
         tagger = pycrfsuite.Tagger()
         tagger.open('brain/specific_representation/model.crfsuite')
-        print(sent)
+        for part in sent: print(part)
         y_pred = tagger.tag(sent)
         print(y_pred)
         return text
